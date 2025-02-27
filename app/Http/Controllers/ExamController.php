@@ -3,12 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Exam;
+use App\Models\Teacher;
 use App\Http\Requests\StoreExamRequest;
 use App\Http\Requests\UpdateExamRequest;
 use App\Http\Resources\ExamResource;
 
 class ExamController extends Controller
 {
+
+    public function all()
+    {
+        $exams = Exam::all();
+        return ExamResource::collection($exams);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +24,14 @@ class ExamController extends Controller
      */
     public function index()
     {
-        $exams = Exam::all();
+        $exams = Exam::paginate(15);
+        $exams->getCollection()->transform(function ($exam) {
+            $teacherIds = !empty($exam->teacher_ids) ? (is_array($exam->teacher_ids) ? $exam->teacher_ids : json_decode($exam->teacher_ids, true)) : [];
+            $teachers = !empty($teacherIds) && is_array($teacherIds) ? Teacher::whereIn('id', $teacherIds)->get() : [];
+            $exam->teachers = $teachers;
+            return $exam;
+        });
+
         return ExamResource::collection($exams);
     }
 
@@ -39,7 +54,18 @@ class ExamController extends Controller
         $exam->groupe = $request->input('groupe');
         $exam->lib_mod = $request->input('lib_mod');
 
+        /*if ($request->has('teacher_ids')) {
+            $exam->teacher_ids = $request->input('teacher_ids');
+        }*/
+        if ($request->has('teacher_ids')) {
+            $exam->teacher_ids = is_array($request->input('teacher_ids')) 
+                ? $request->input('teacher_ids') 
+                : json_decode($request->input('teacher_ids'), true);
+        }
+        
+
         $exam->save();
+
         return new ExamResource($exam);
     }
 
@@ -72,8 +98,14 @@ class ExamController extends Controller
         $exam->groupe = $request->input('groupe');
         $exam->lib_mod = $request->input('lib_mod');
 
+        if ($request->has('teacher_ids')) {
+            $exam->teacher_ids = is_array($request->input('teacher_ids')) 
+                ? $request->input('teacher_ids') 
+                : json_decode($request->input('teacher_ids'), true);
+        }
+
         $exam->save();
-        
+
         return new ExamResource($exam);
     }
 

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Exam;
+use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -28,6 +29,7 @@ class ExamFactory extends Factory
             'semestre' => 'S' . $this->faker->numberBetween(1, 6),
             'groupe' => 'G' . $this->faker->numberBetween(1, 10),
             'lib_mod' => $this->faker->sentence(3),
+            'teacher_ids' => Teacher::inRandomOrder()->limit(rand(1, 3))->pluck('id')->toArray(),
         ];
     }
 }

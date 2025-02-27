@@ -10,10 +10,9 @@ class Exam extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['matiere', 'date', 'creneau_horaire', 'salle'];
+    protected $fillable = ['date', 'creneau_horaire', 'module', 'salle', 'filiere', 'semestre', 'groupe', 'lib_mod', 'teacher_id'];
 
-    public function sessions()
-    {
-        return $this->hasMany(Session::class, 'examen_id');
-    }
+    protected $casts = [
+        'teacher_ids' => 'array', // Convertit automatiquement JSON en tableau PHP
+    ];
 }

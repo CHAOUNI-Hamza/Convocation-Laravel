@@ -36,10 +36,15 @@ Route::group([
 });
 
 
+
+
+
+Route::get('exams/all', [ExamController::class, 'all']);
+Route::apiResource('exams', ExamController::class);
+
+
+
+Route::get('teachers/all', [TeacherController::class, 'all']);
 Route::get('/professeurs-disponibles', [TeacherController::class, 'getTeachersDisponibles']);
 Route::post('/ajouter-professeur-surveillance', [TeacherController::class, 'ajouterProfesseur']);
-
-
-
-Route::apiResource('exams', ExamController::class);
 Route::apiResource('teachers', TeacherController::class);

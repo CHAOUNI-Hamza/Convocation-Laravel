@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('semestre');
             $table->string('groupe');
             $table->string('lib_mod');
+            $table->json('teacher_ids')->nullable(); // Stockera un tableau d'IDs d'enseignants
             $table->timestamps();
         });
     }

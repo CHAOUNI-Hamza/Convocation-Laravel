@@ -140,6 +140,11 @@ class TeacherController extends Controller
         return response()->json(['message' => 'Professeur ajouté à la surveillance avec succès.', 'seance' => $seance], 201);
     }
 
+    public function all()
+    {
+        $teachers = Teacher::all();
+        return TeacherResource::collection($teachers);
+    }
 
     /**
      * Display a listing of the resource.
@@ -148,7 +153,7 @@ class TeacherController extends Controller
      */
     public function index()
     {
-        $teachers = Teacher::all();
+        $teachers = Teacher::paginate(15);
         return TeacherResource::collection($teachers);
     }
 

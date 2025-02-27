@@ -4,16 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Session;
+use App\Models\Exam;
 
 class Teacher extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nom', 'prenom', 'email'];
+    protected $fillable = ['name', 'first_name', 'name_ar', 'first_name_ar', 'sum_number', 'email'];
 
-    public function sessions()
-    {
-        return $this->hasMany(Session::class, 'professeur_id');
-    }
 }

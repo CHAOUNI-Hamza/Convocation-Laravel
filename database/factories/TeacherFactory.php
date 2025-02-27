@@ -22,9 +22,9 @@ class TeacherFactory extends Factory
         return [
             'name' => $this->faker->lastName,
             'first_name' => $this->faker->firstName,
-            'name_ar' => $this->faker->word, // À remplacer par des noms arabes si nécessaire
-            'first_name_ar' => $this->faker->word, // À remplacer par des prénoms arabes si nécessaire
-            'sum_number' => $this->faker->unique()->numerify('#######'), // Numéro unique à 7 chiffres
+            'name_ar' => $this->faker->lastName,
+            'first_name_ar' => $this->faker->firstName,
+            'sum_number' => $this->faker->unique()->numberBetween(1000, 9999),
             'email' => $this->faker->unique()->safeEmail,
         ];
     }

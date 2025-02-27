@@ -6,7 +6,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Teacher;
 use App\Models\Exam;
-use App\Models\Session;
 use App\Models\User;
 
 class DatabaseSeeder extends Seeder
@@ -18,7 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        //User::factory()->count(10)->create();
+        User::factory()->count(10)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
@@ -26,9 +25,9 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         // Exemple dans un Seeder
-        //Teacher::factory()->count(5)->create();
-        //Exam::factory()->count(5)->create();
-        //Session::factory()->count(10)->create();
+        Teacher::factory(10)->create();
+        Exam::factory()->count(5)->create();
+         // Crée 10 enseignants
 
     }
 }
