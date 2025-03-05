@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Exam;
 use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Carbon\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Exam>
@@ -21,15 +22,14 @@ class ExamFactory extends Factory
     public function definition()
     {
         return [
-            'date' => $this->faker->date(),
-            'creneau_horaire' => $this->faker->time('H:i'), // Format 00:00
-            'module' => $this->faker->word(),
-            'salle' => 'Salle ' . $this->faker->numberBetween(1, 20),
-            'filiere' => $this->faker->randomElement(['Informatique', 'Gestion', 'Mathématiques']),
-            'semestre' => 'S' . $this->faker->numberBetween(1, 6),
-            'groupe' => 'G' . $this->faker->numberBetween(1, 10),
-            'lib_mod' => $this->faker->sentence(3),
-            'teacher_ids' => Teacher::inRandomOrder()->limit(rand(1, 3))->pluck('id')->toArray(),
+            'date' => Carbon::now()->addDays(rand(1, 30))->format('Y-m-d'),
+            'creneau_horaire' => $this->faker->randomElement(['09:00', '11:00', '14:00', '16:30']),
+            'module' => $this->faker->word,
+            'salle' => 'Salle ' . rand(1, 10),
+            'filiere' => $this->faker->randomElement(['Informatique', 'Mathématiques', 'Physique']),
+            'semestre' => 'Semestre ' . rand(1, 6),
+            'groupe' => 'Groupe ' . rand(1, 5),
+            'lib_mod' => $this->faker->word,
         ];
     }
 }

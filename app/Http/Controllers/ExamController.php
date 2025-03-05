@@ -24,14 +24,7 @@ class ExamController extends Controller
      */
     public function index()
     {
-        $exams = Exam::paginate(15);
-        $exams->getCollection()->transform(function ($exam) {
-            $teacherIds = !empty($exam->teacher_ids) ? (is_array($exam->teacher_ids) ? $exam->teacher_ids : json_decode($exam->teacher_ids, true)) : [];
-            $teachers = !empty($teacherIds) && is_array($teacherIds) ? Teacher::whereIn('id', $teacherIds)->get() : [];
-            $exam->teachers = $teachers;
-            return $exam;
-        });
-
+        $exams = Exam::with('teachers')->paginate(15);
         return ExamResource::collection($exams);
     }
 
@@ -43,30 +36,30 @@ class ExamController extends Controller
      */
     public function store(StoreExamRequest $request)
     {
-        $exam = new Exam();
+        // Créer un nouvel examen
+        $exam = Exam::create([
+            'date' => \Carbon\Carbon::parse($request->input('date'))->format('Y-m-d'),
+            'creneau_horaire' => \Carbon\Carbon::parse($request->input('creneau_horaire'))->format('H:i'),
+            'module' => $request->input('module'),
+            'salle' => $request->input('salle'),
+            'filiere' => $request->input('filiere'),
+            'semestre' => $request->input('semestre'),
+            'groupe' => $request->input('groupe'),
+            'lib_mod' => $request->input('lib_mod'),
+        ]);
 
-        $exam->date = \Carbon\Carbon::parse($request->input('date'))->format('Y-m-d');
-        $exam->creneau_horaire = \Carbon\Carbon::parse($request->input('creneau_horaire'))->format('H:i');
-        $exam->module = $request->input('module');
-        $exam->salle = $request->input('salle');
-        $exam->filiere = $request->input('filiere');
-        $exam->semestre = $request->input('semestre');
-        $exam->groupe = $request->input('groupe');
-        $exam->lib_mod = $request->input('lib_mod');
-
-        /*if ($request->has('teacher_ids')) {
-            $exam->teacher_ids = $request->input('teacher_ids');
-        }*/
+        // Associer les enseignants si fournis
         if ($request->has('teacher_ids')) {
-            $exam->teacher_ids = is_array($request->input('teacher_ids')) 
-                ? $request->input('teacher_ids') 
-                : json_decode($request->input('teacher_ids'), true);
+            $teacherIds = is_array($request->teacher_ids) ? $request->teacher_ids : json_decode($request->teacher_ids, true);
+
+            // Vérifier si les IDs sont valides
+            $validTeachers = Teacher::whereIn('id', $teacherIds)->pluck('id')->toArray();
+            
+            // Attacher les enseignants à l'examen
+            $exam->teachers()->attach($validTeachers);
         }
-        
 
-        $exam->save();
-
-        return new ExamResource($exam);
+        return new ExamResource($exam->load('teachers'));
     }
 
     /**
@@ -89,24 +82,29 @@ class ExamController extends Controller
      */
     public function update(UpdateExamRequest $request, Exam $exam)
     {
-        $exam->date = \Carbon\Carbon::parse($request->input('date'))->format('Y-m-d');
-        $exam->creneau_horaire = \Carbon\Carbon::parse($request->input('creneau_horaire'))->format('H:i');
-        $exam->module = $request->input('module');
-        $exam->salle = $request->input('salle');
-        $exam->filiere = $request->input('filiere');
-        $exam->semestre = $request->input('semestre');
-        $exam->groupe = $request->input('groupe');
-        $exam->lib_mod = $request->input('lib_mod');
-
+        $exam->update([
+            'date' => \Carbon\Carbon::parse($request->date)->format('Y-m-d'),
+            'creneau_horaire' => \Carbon\Carbon::parse($request->creneau_horaire)->format('H:i'),
+            'module' => $request->module,
+            'salle' => $request->salle,
+            'filiere' => $request->filiere,
+            'semestre' => $request->semestre,
+            'groupe' => $request->groupe,
+            'lib_mod' => $request->lib_mod,
+        ]);
+    
+        // Vérifier et mettre à jour les enseignants
         if ($request->has('teacher_ids')) {
-            $exam->teacher_ids = is_array($request->input('teacher_ids')) 
-                ? $request->input('teacher_ids') 
-                : json_decode($request->input('teacher_ids'), true);
+            $teacherIds = is_array($request->teacher_ids) ? $request->teacher_ids : json_decode($request->teacher_ids, true);
+    
+            // Vérifier si les enseignants existent bien
+            $validTeachers = Teacher::whereIn('id', $teacherIds)->pluck('id')->toArray();
+    
+            // Synchroniser les enseignants avec la table pivot
+            $exam->teachers()->sync($validTeachers);
         }
-
-        $exam->save();
-
-        return new ExamResource($exam);
+    
+        return new ExamResource($exam->load('teachers'));
     }
 
     /**

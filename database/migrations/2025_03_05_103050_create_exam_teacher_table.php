@@ -13,16 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('exams', function (Blueprint $table) {
+        Schema::create('exam_teacher', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
-            $table->time('creneau_horaire'); // Format 00:00
-            $table->string('module');
-            $table->string('salle');
-            $table->string('filiere');
-            $table->string('semestre');
-            $table->string('groupe');
-            $table->string('lib_mod');
+            $table->foreignId('exam_id')->constrained()->onDelete('cascade');
+            $table->foreignId('teacher_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -34,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('exams');
+        Schema::dropIfExists('exam_teacher');
     }
 };

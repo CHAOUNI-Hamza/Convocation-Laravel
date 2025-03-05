@@ -18,16 +18,17 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         User::factory()->count(10)->create();
+        
+        $teachers = Teacher::factory(20)->create();
+        $exams = Exam::factory(10)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
-        // Exemple dans un Seeder
-        Teacher::factory(10)->create();
-        Exam::factory()->count(5)->create();
-         // Crée 10 enseignants
+        // Affecter les enseignants aux examens
+        foreach ($exams as $exam) {
+            // Sélectionner entre 1 et 3 enseignants pour chaque examen
+            $exam->teachers()->attach(
+                $teachers->random(rand(1, 3))->pluck('id')->toArray()
+            );
+        }
 
     }
 }

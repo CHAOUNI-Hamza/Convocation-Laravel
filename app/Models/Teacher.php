@@ -12,4 +12,9 @@ class Teacher extends Model
 
     protected $fillable = ['name', 'first_name', 'name_ar', 'first_name_ar', 'sum_number', 'email'];
 
+    public function exams()
+    {
+        return $this->belongsToMany(Exam::class, 'exam_teacher')->withTimestamps();
+    }
+
 }
