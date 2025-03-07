@@ -9,77 +9,85 @@ use App\Models\Exam;
 use App\Http\Requests\StoreTeacherRequest;
 use App\Http\Requests\UpdateTeacherRequest;
 use App\Http\Resources\TeacherResource;
+use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
     public function getTeachersDisponibles(Request $request)
-{
-    $date = $request->input('date');
-    $creneau = $request->input('creneau'); // 9h00, 11h00, 14h00, 16h30
+    {
+        // Récupérer la date et le créneau horaire depuis la requête
+        $date = $request->input('date');  // Format : 'Y-m-d'
+        $creneauHoraire = $request->input('creneau_horaire');  // Format : 'H:i'
 
-    // Liste des créneaux en ordre chronologique
-    $creneaux = ['09:00', '11:00', '14:00', '16:30'];
-    $indexCreneau = array_search($creneau, $creneaux);
+        // Logique pour le créneau à 09:00
+        if ($creneauHoraire == '09:00') {
+            $teachersWithoutCreneauAt09 = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
+                $query->where('date', $date)
+                    ->where('creneau_horaire', '09:00');
+            })->get();
 
-    // Récupérer tous les professeurs avec le nombre d'examens surveillés
-    $professeurs = Teacher::withCount(['exams as total_exams'])
-        ->having('total_exams', '<', 8)
-        ->get();
+            $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
+                $query->where('date', $date)
+                    ->whereIn('creneau_horaire', ['11:00', '14:00', '16:30']);
+            })->get();
 
-    // Récupérer les professeurs qui ont surveillé les examens précédents du même jour
-    $professeurs_ayant_surveille_avant = Exam::where('date', $date)
-        ->whereIn('creneau_horaire', array_slice($creneaux, 0, $indexCreneau))
-        ->join('exam_teacher', 'exams.id', '=', 'exam_teacher.exam_id')
-        ->pluck('exam_teacher.teacher_id');
+            $teachers = $teachersWithOtherCreneaux->merge($teachersWithoutCreneauAt09);
+        } 
+        // Logique pour le créneau à 11:00
+        elseif ($creneauHoraire == '11:00') {
+            $teachersWithoutCreneauAt11 = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
+                $query->where('date', $date)
+                    ->where('creneau_horaire', '11:00');
+            })->get();
 
-    if ($creneau === '09:00') {
-        // Exclure ceux qui ont déjà surveillé à 09:00 le même jour
-        $professeurs_ayant_surveille_09h = Exam::where('date', $date)
-            ->where('creneau_horaire', '09:00')
-            ->join('exam_teacher', 'exams.id', '=', 'exam_teacher.exam_id')
-            ->pluck('exam_teacher.teacher_id');
+            $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
+                $query->where('date', $date)
+                    ->whereIn('creneau_horaire', ['09:00', '14:00', '16:30']);
+            })->get();
 
-        $professeurs = $professeurs->reject(function ($prof) use ($professeurs_ayant_surveille_09h) {
-            return $professeurs_ayant_surveille_09h->contains($prof->id);
+            $teachers = $teachersWithOtherCreneaux->merge($teachersWithoutCreneauAt11);
+        } 
+        // Logique pour le créneau à 14:00
+        elseif ($creneauHoraire == '14:00') {
+            $teachersWithoutCreneauAt14 = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
+                $query->where('date', $date)
+                    ->where('creneau_horaire', '14:00');
+            })->get();
+
+            $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
+                $query->where('date', $date)
+                    ->whereIn('creneau_horaire', ['09:00', '11:00', '16:30']);
+            })->get();
+
+            $teachers = $teachersWithOtherCreneaux->merge($teachersWithoutCreneauAt14);
+        } 
+        // Logique pour le créneau à 16:30
+        elseif ($creneauHoraire == '16:30') {
+            $teachersWithoutCreneauAt16_30 = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
+                $query->where('date', $date)
+                    ->where('creneau_horaire', '16:30');
+            })->get();
+
+            $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
+                $query->where('date', $date)
+                    ->whereIn('creneau_horaire', ['09:00', '11:00', '14:00']);
+            })->get();
+
+            $teachers = $teachersWithOtherCreneaux->merge($teachersWithoutCreneauAt16_30);
+        } 
+        // Si le créneau n'est pas 09:00, 11:00, 14:00 ou 16:30
+        else {
+            $teachers = Teacher::all();
+        }
+
+        // Trier les enseignants pour mettre en bas ceux qui sont déjà occupés à une autre date
+        $teachers = $teachers->sortBy(function($teacher) use ($date) {
+            return $teacher->exams()->where('date', '!=', $date)->exists();
         });
+
+        return $teachers;
     }
 
-    if ($creneau === '11:00') {
-        // Prioriser ceux qui ont surveillé à 9h00
-        $professeurs = $professeurs->sortByDesc(function ($prof) use ($professeurs_ayant_surveille_avant) {
-            return $professeurs_ayant_surveille_avant->contains($prof->id);
-        });
-    } elseif ($creneau === '14:00') {
-        // Exclure ceux qui ont surveillé 9h00 et 11h00
-        $professeurs = $professeurs->reject(function ($prof) use ($professeurs_ayant_surveille_avant) {
-            return $professeurs_ayant_surveille_avant->contains($prof->id);
-        });
-    } elseif ($creneau === '16:30') {
-        // Récupérer les professeurs ayant surveillé à 09:00 et 11:00
-        $professeurs_ayant_surveille_09h_11h = Exam::where('date', $date)
-            ->whereIn('creneau_horaire', ['09:00', '11:00'])
-            ->join('exam_teacher', 'exams.id', '=', 'exam_teacher.exam_id')
-            ->pluck('exam_teacher.teacher_id');
-
-        // Exclure les professeurs ayant surveillé à 09:00 et 11:00
-        $professeurs = $professeurs->reject(function ($prof) use ($professeurs_ayant_surveille_09h_11h) {
-            return $professeurs_ayant_surveille_09h_11h->contains($prof->id);
-        });
-
-        // Récupérer les professeurs ayant surveillé à 14:00
-        $professeurs_ayant_surveille_14h = Exam::where('date', $date)
-            ->where('creneau_horaire', '14:00')
-            ->join('exam_teacher', 'exams.id', '=', 'exam_teacher.exam_id')
-            ->pluck('exam_teacher.teacher_id');
-
-        // Prioriser ceux qui ont surveillé à 14h00
-        $professeurs = $professeurs->sortByDesc(function ($prof) use ($professeurs_ayant_surveille_14h) {
-            return $professeurs_ayant_surveille_14h->contains($prof->id);
-        });
-    }
-
-    return response()->json($professeurs);
-}
 
 
 
