@@ -85,11 +85,9 @@ class TeacherController extends Controller
             return $teacher->exams()->where('date', '!=', $date)->exists();
         });
 
-        return $teachers;
+        //return $teachers;
+        return TeacherResource::collection($teachers);
     }
-
-
-
 
     public function all()
     {
