@@ -35,7 +35,7 @@ Route::group([
 
 });
 
-
+Route::get('/professeurs/{id}/exams', [TeacherController::class, 'getExamDunProf']);
 Route::get('/professeurs-disponibles', [TeacherController::class, 'getTeachersDisponibles']);
 
 
