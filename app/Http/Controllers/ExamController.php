@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Exam;
 use App\Models\Teacher;
 use App\Http\Requests\StoreExamRequest;
@@ -22,9 +23,53 @@ class ExamController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $exams = Exam::with('teachers')->paginate(15);
+        // Récupérer le critère de filtrage par date
+        $date = $request->input('date');
+        $module = $request->input('module');
+        $salle = $request->input('salle');
+        $filiere = $request->input('filiere');
+        $semestre = $request->input('semestre');
+        $groupe = $request->input('groupe');
+
+        // Construction de la requête de base
+        $query = Exam::with('teachers')->orderBy('created_at', 'desc');
+        
+        // Filtrage par date
+        if ($date) {
+            $query->whereDate('date', $date); // Filtrage exact par date
+        }
+
+        // Filtrage par module
+        if ($module) {
+            $query->where('module', 'like', '%' . $module . '%');
+        }
+
+        // Filtrage par salle
+        if ($salle) {
+            $query->where('salle', 'like', '%' . $salle . '%');
+        }
+
+        // Filtrage par filière
+        if ($filiere) {
+            $query->where('filiere', 'like', '%' . $filiere . '%');
+        }
+
+        // Filtrage par semestre
+        if ($semestre) {
+            $query->where('semestre', 'like', '%' . $semestre . '%');
+        }
+
+        // Filtrage par groupe
+        if ($groupe) {
+            $query->where('groupe', 'like', '%' . $groupe . '%');
+        }
+
+        // Appliquer la pagination après filtrage
+        $exams = $query->paginate(15);
+
+        // Retourner les résultats formatés avec ExamResource
         return ExamResource::collection($exams);
     }
 

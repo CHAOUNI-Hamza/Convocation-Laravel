@@ -29,70 +29,60 @@ class TeacherController extends Controller
 
     public function getTeachersDisponibles(Request $request)
     {
-        // Récupérer la date et le créneau horaire depuis la requête
         $date = $request->input('date');  // Format : 'Y-m-d'
         $creneauHoraire = $request->input('creneau_horaire');  // Format : 'H:i'
 
-        // Logique pour le créneau à 09:00
         if ($creneauHoraire == '09:00:00') {
-            $teachersWithoutCreneauAt09 = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
+            $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date) {
                 $query->where('date', $date)
                     ->where('creneau_horaire', '09:00:00');
             })->get();
 
             $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->whereIn('creneau_horaire', ['11:30:00', '14:00:00', '16:30:00']);
+                    ->whereIn('creneau_horaire', ['11:30:00', '14:00:00', '16:30:00', '17:00:00']);
             })->get();
-
-            $teachers = $teachersWithOtherCreneaux->merge($teachersWithoutCreneauAt09);
         } 
-        // Logique pour le créneau à 11:00
-        elseif ($creneauHoraire == '11:00:00') {
-            $teachersWithoutCreneauAt11 = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
+        elseif ($creneauHoraire == '11:30:00') {
+            $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->where('creneau_horaire', '11:00:00');
+                    ->where('creneau_horaire', '11:30:00');
             })->get();
 
             $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->whereIn('creneau_horaire', ['09:00:00', '14:00:00', '16:30:00']);
+                    ->whereIn('creneau_horaire', ['09:00:00', '14:00:00', '16:30:00', '17:00:00']);
             })->get();
-
-            $teachers = $teachersWithOtherCreneaux->merge($teachersWithoutCreneauAt11);
         } 
-        // Logique pour le créneau à 14:00
-        elseif ($creneauHoraire == '14:00:00') {
-            $teachersWithoutCreneauAt14 = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
+        elseif ($creneauHoraire == '14:00:00' || $creneauHoraire == '14:30:00') {
+            $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
                 $query->where('date', $date)
-                    ->where('creneau_horaire', '14:00:00');
+                    ->where('creneau_horaire', $creneauHoraire);
             })->get();
 
             $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->whereIn('creneau_horaire', ['09:00:00', '11:00:00', '16:30:00']);
+                    ->whereIn('creneau_horaire', ['09:00:00', '11:30:00', '16:30:00', '17:00:00']);
             })->get();
-
-            $teachers = $teachersWithOtherCreneaux->merge($teachersWithoutCreneauAt14);
         } 
-        // Logique pour le créneau à 16:30
-        elseif ($creneauHoraire == '16:30:00') {
-            $teachersWithoutCreneauAt16_30 = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
+        elseif ($creneauHoraire == '16:30:00' || $creneauHoraire == '17:00:00') {
+            $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
                 $query->where('date', $date)
-                    ->where('creneau_horaire', '16:30:00');
+                    ->where('creneau_horaire', $creneauHoraire);
             })->get();
 
             $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->whereIn('creneau_horaire', ['09:00:00', '11:00:00', '14:00:00']);
+                    ->whereIn('creneau_horaire', ['09:00:00', '11:30:00', '14:00:00', '14:30:00']);
             })->get();
-
-            $teachers = $teachersWithOtherCreneaux->merge($teachersWithoutCreneauAt16_30);
         } 
-        // Si le créneau n'est pas 09:00, 11:00, 14:00 ou 16:30
         else {
-            $teachers = Teacher::all();
+            $teachersWithoutCreneau = Teacher::all();
+            $teachersWithOtherCreneaux = collect();
         }
+
+        // Fusionner les résultats
+        $teachers = $teachersWithOtherCreneaux->merge($teachersWithoutCreneau);
 
         // Charger le total des examens pour chaque professeur
         $teachers->loadCount('exams');
@@ -102,9 +92,9 @@ class TeacherController extends Controller
             return $teacher->exams()->where('date', '!=', $date)->exists();
         });
 
-        //return $teachers;
         return TeacherResource::collection($teachers);
     }
+
 
     public function all()
     {
