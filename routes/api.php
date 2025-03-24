@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,9 @@ Route::group([
     Route::post('me', [AuthController::class, 'me']);
 
 });
+
+Route::apiResource('users', UserController::class);
+Route::put('users/{user}/password', [UserController::class, 'updatePassword']);
 
 Route::get('/professeurs/{id}/exams', [TeacherController::class, 'getExamDunProf']);
 Route::get('/professeurs-disponibles', [TeacherController::class, 'getTeachersDisponibles']);

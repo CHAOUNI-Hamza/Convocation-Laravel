@@ -16,16 +16,19 @@ class TeacherController extends Controller
 
     // Récupérer tous les examens d’un professeur spécifique
     public function getExamDunProf($id) {
-
-        $teacher = Teacher::with('exams')->find($id);
-
+        $teacher = Teacher::with('exams')->select('id', 'name', 'first_name')->find($id);
+    
         if (!$teacher) {
             return response()->json(['message' => 'Professeur non trouvé'], 404);
         }
-
-        return response()->json($teacher->exams);
-        
+    
+        return response()->json([
+            'name' => $teacher->name,
+            'first_name' => $teacher->first_name,
+            'exams' => $teacher->exams
+        ]);
     }
+    
 
     public function getTeachersDisponibles(Request $request)
     {
@@ -110,7 +113,7 @@ class TeacherController extends Controller
      */
     public function index()
     {
-        $teachers = Teacher::paginate(15);
+        $teachers = Teacher::orderBy('created_at', 'desc')->paginate(15);
         return TeacherResource::collection($teachers);
     }
 
