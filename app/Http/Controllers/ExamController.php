@@ -12,11 +12,22 @@ use App\Http\Resources\ExamResource;
 class ExamController extends Controller
 {
 
+    /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //$this->middleware('auth:api');
+    }
+
     public function all()
     {
-        $exams = Exam::all();
+        $exams = Exam::with('teachers')->get();
         return ExamResource::collection($exams);
     }
+
 
     /**
      * Display a listing of the resource.
@@ -25,7 +36,6 @@ class ExamController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer le critère de filtrage par date
         $date = $request->input('date');
         $module = $request->input('module');
         $salle = $request->input('salle');
@@ -33,43 +43,27 @@ class ExamController extends Controller
         $semestre = $request->input('semestre');
         $groupe = $request->input('groupe');
 
-        // Construction de la requête de base
         $query = Exam::with('teachers')->orderBy('created_at', 'desc');
         
-        // Filtrage par date
         if ($date) {
-            $query->whereDate('date', $date); // Filtrage exact par date
+            $query->whereDate('date', $date); 
         }
-
-        // Filtrage par module
         if ($module) {
             $query->where('module', 'like', '%' . $module . '%');
         }
-
-        // Filtrage par salle
         if ($salle) {
             $query->where('salle', 'like', '%' . $salle . '%');
         }
-
-        // Filtrage par filière
         if ($filiere) {
             $query->where('filiere', 'like', '%' . $filiere . '%');
         }
-
-        // Filtrage par semestre
         if ($semestre) {
             $query->where('semestre', 'like', '%' . $semestre . '%');
         }
-
-        // Filtrage par groupe
         if ($groupe) {
             $query->where('groupe', 'like', '%' . $groupe . '%');
         }
-
-        // Appliquer la pagination après filtrage
         $exams = $query->paginate(15);
-
-        // Retourner les résultats formatés avec ExamResource
         return ExamResource::collection($exams);
     }
 
@@ -91,6 +85,7 @@ class ExamController extends Controller
             'semestre' => $request->input('semestre'),
             'groupe' => $request->input('groupe'),
             'lib_mod' => $request->input('lib_mod'),
+            'prof_mod' => $request->input('prof_mod'),
         ]);
 
         // Associer les enseignants si fournis
@@ -136,6 +131,7 @@ class ExamController extends Controller
             'semestre' => $request->semestre,
             'groupe' => $request->groupe,
             'lib_mod' => $request->lib_mod,
+            'prof_mod' => $request->input('prof_mod'),
         ]);
     
         // Vérifier et mettre à jour les enseignants

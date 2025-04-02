@@ -26,7 +26,14 @@ class ExamResource extends JsonResource
             'semestre' => $this->semestre,
             'groupe' => $this->groupe,
             'lib_mod' => $this->lib_mod,
+            'prof_mod' => $this->prof_mod,
             'teachers' => TeacherResource::collection($this->whenLoaded('teachers')),
+            'teachers_listes' => $this->teachers->map(function ($teacher) {
+                return [
+                    'name' => $teacher->name,
+                    'first_name' => $teacher->first_name,
+                ];
+            }),
         ];
     }
 }

@@ -13,10 +13,23 @@ use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
+    /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //$this->middleware('auth:api');
+    }
 
     // Récupérer tous les examens d’un professeur spécifique
     public function getExamDunProf($id) {
-        $teacher = Teacher::with('exams')->select('id', 'name', 'first_name')->find($id);
+        $teacher = Teacher::with(['exams' => function($query) {
+            $query->orderBy('date');  // Trie par date
+        }])
+        ->select('id', 'name', 'first_name')
+        ->find($id);
     
         if (!$teacher) {
             return response()->json(['message' => 'Professeur non trouvé'], 404);
@@ -28,6 +41,7 @@ class TeacherController extends Controller
             'exams' => $teacher->exams
         ]);
     }
+    
     
 
     public function getTeachersDisponibles(Request $request)
@@ -43,7 +57,7 @@ class TeacherController extends Controller
 
             $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->whereIn('creneau_horaire', ['11:30:00', '14:00:00', '16:30:00', '17:00:00']);
+                    ->whereIn('creneau_horaire', ['11:30:00', '14:00:00', '14:30:00', '16:30:00', '17:00:00']);
             })->get();
         } 
         elseif ($creneauHoraire == '11:30:00') {
@@ -54,7 +68,7 @@ class TeacherController extends Controller
 
             $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->whereIn('creneau_horaire', ['09:00:00', '14:00:00', '16:30:00', '17:00:00']);
+                    ->whereIn('creneau_horaire', ['09:00:00', '14:00:00', '14:30:00', '16:30:00', '17:00:00']);
             })->get();
         } 
         elseif ($creneauHoraire == '14:00:00' || $creneauHoraire == '14:30:00') {

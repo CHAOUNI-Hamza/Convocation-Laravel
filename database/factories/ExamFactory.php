@@ -30,6 +30,7 @@ class ExamFactory extends Factory
             'semestre' => 'Semestre ' . rand(1, 6),
             'groupe' => 'Groupe ' . rand(1, 5),
             'lib_mod' => $this->faker->word,
+            'prof_mod' => $this->faker->name,
         ];
     }
 }

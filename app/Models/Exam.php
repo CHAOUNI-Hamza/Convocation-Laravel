@@ -10,7 +10,7 @@ class Exam extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['date', 'creneau_horaire', 'module', 'salle', 'filiere', 'semestre', 'groupe', 'lib_mod'];
+    protected $fillable = ['date', 'creneau_horaire', 'module', 'salle', 'filiere', 'semestre', 'groupe', 'lib_mod', 'prof_mod'];
 
     public function teachers()
     {
