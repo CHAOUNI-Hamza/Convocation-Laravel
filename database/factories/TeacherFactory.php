@@ -26,6 +26,9 @@ class TeacherFactory extends Factory
             'first_name_ar' => $this->faker->firstName,
             'sum_number' => $this->faker->unique()->numberBetween(1000, 9999),
             'email' => $this->faker->unique()->safeEmail,
+            'city' => $this->faker->city, // Ajout de la ville
+            'status' => $this->faker->randomElement(['active', 'non']), // Ajout du statut (0 ou 1)
+            'limit' => $this->faker->numberBetween(1, 100), // Ajout de la limite (nombre aléatoire)
         ];
     }
 }

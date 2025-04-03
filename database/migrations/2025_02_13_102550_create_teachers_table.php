@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('first_name_ar');
             $table->string('sum_number')->unique();
             $table->string('email')->unique();
+            $table->string('city'); // Ajout de la ville
+            $table->boolean('status')->default(1); // Ajout du statut (0 ou 1) avec une valeur par défaut
+            $table->integer('limit'); // Ajout de la limite (numérique)
             $table->timestamps();
         });
     }

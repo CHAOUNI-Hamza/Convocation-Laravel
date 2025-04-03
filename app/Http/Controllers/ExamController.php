@@ -24,7 +24,11 @@ class ExamController extends Controller
 
     public function all()
     {
-        $exams = Exam::with('teachers')->get();
+        $exams = Exam::with('teachers')
+        ->orderBy('date', 'asc')  // Trier par date en premier
+        ->orderBy('creneau_horaire', 'asc') // Trier par créneau horaire ensuite
+        ->get();
+
         return ExamResource::collection($exams);
     }
 
@@ -43,7 +47,9 @@ class ExamController extends Controller
         $semestre = $request->input('semestre');
         $groupe = $request->input('groupe');
 
-        $query = Exam::with('teachers')->orderBy('created_at', 'desc');
+        $query = Exam::with('teachers')
+        ->orderBy('date', 'asc')  // Trier par date en premier
+        ->orderBy('creneau_horaire', 'asc'); // Trier par créneau horaire ensuite
         
         if ($date) {
             $query->whereDate('date', $date); 
