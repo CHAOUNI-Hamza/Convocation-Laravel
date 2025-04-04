@@ -52,7 +52,7 @@ class ExamController extends Controller
         ->orderBy('creneau_horaire', 'asc'); // Trier par créneau horaire ensuite
         
         if ($date) {
-            $query->whereDate('date', $date); 
+            $query->whereDate('date', $date);
         }
         if ($module) {
             $query->where('module', 'like', '%' . $module . '%');
@@ -69,7 +69,7 @@ class ExamController extends Controller
         if ($groupe) {
             $query->where('groupe', 'like', '%' . $groupe . '%');
         }
-        $exams = $query->paginate(15);
+        $exams = $query->paginate(50);
         return ExamResource::collection($exams);
     }
 
