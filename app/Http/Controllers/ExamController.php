@@ -69,7 +69,7 @@ class ExamController extends Controller
         if ($groupe) {
             $query->where('groupe', 'like', '%' . $groupe . '%');
         }
-        $exams = $query->paginate(50);
+        $exams = $query->paginate(10);
         return ExamResource::collection($exams);
     }
 
