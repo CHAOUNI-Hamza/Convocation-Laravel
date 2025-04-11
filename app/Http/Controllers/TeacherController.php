@@ -50,59 +50,51 @@ class TeacherController extends Controller
         $creneauHoraire = $request->input('creneau_horaire');  // Format : 'H:i'
 
         if ($creneauHoraire == '09:00:00') {
-            $teachersWithoutCreneau = Teacher::where('status', '!=', 'non')
-            ->whereDoesntHave('exams', function ($query) use ($date) {
+            $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date) {
                 $query->where('date', $date)
                     ->where('creneau_horaire', '09:00:00');
             })->get();
 
-            $teachersWithOtherCreneaux = Teacher::where('status', '!=', 'non')
-            ->whereHas('exams', function ($query) use ($date) {
+            $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
                     ->whereIn('creneau_horaire', ['11:30:00', '14:00:00', '14:30:00', '16:30:00', '17:00:00']);
             })->get();
         } 
         elseif ($creneauHoraire == '11:30:00') {
-            $teachersWithoutCreneau = Teacher::where('status', '!=', 'non')
-            ->whereDoesntHave('exams', function ($query) use ($date) {
+            $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date) {
                 $query->where('date', $date)
                     ->where('creneau_horaire', '11:30:00');
             })->get();
 
-            $teachersWithOtherCreneaux = Teacher::where('status', '!=', 'non')
-            ->whereHas('exams', function ($query) use ($date) {
+            $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
                     ->whereIn('creneau_horaire', ['09:00:00', '14:00:00', '14:30:00', '16:30:00', '17:00:00']);
             })->get();
         } 
         elseif ($creneauHoraire == '14:00:00' || $creneauHoraire == '14:30:00') {
-            $teachersWithoutCreneau = Teacher::where('status', '!=', 'non')
-            ->whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
+            $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
                 $query->where('date', $date)
                     ->where('creneau_horaire', $creneauHoraire);
             })->get();
 
-            $teachersWithOtherCreneaux = Teacher::where('status', '!=', 'non')
-            ->whereHas('exams', function ($query) use ($date) {
+            $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
                     ->whereIn('creneau_horaire', ['09:00:00', '11:30:00', '16:30:00', '17:00:00']);
             })->get();
         } 
         elseif ($creneauHoraire == '16:30:00' || $creneauHoraire == '17:00:00') {
-            $teachersWithoutCreneau = Teacher::where('status', '!=', 'non')
-            ->whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
+            $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
                 $query->where('date', $date)
                     ->where('creneau_horaire', $creneauHoraire);
             })->get();
 
-            $teachersWithOtherCreneaux = Teacher::where('status', '!=', 'non')
-            ->whereHas('exams', function ($query) use ($date) {
+            $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
                     ->whereIn('creneau_horaire', ['09:00:00', '11:30:00', '14:00:00', '14:30:00']);
             })->get();
         } 
         else {
-            $teachersWithoutCreneau = Teacher::where('status', '!=', 'non')->get();
+            $teachersWithoutCreneau = Teacher::all();
             $teachersWithOtherCreneaux = collect();
         }
 
@@ -158,6 +150,7 @@ class TeacherController extends Controller
         $teacher->city = $request->input('city');
         $teacher->status = $request->input('status');
         $teacher->limit = $request->input('limit');
+        $teacher->grad = $request->input('grad');
 
         $teacher->save();
         return new TeacherResource($teacher);
@@ -192,6 +185,7 @@ class TeacherController extends Controller
         $teacher->city = $request->input('city');
         $teacher->status = $request->input('status');
         $teacher->limit = $request->input('limit');
+        $teacher->grad = $request->input('grad');
 
         $teacher->save();
         return new TeacherResource($teacher);

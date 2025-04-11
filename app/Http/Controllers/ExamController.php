@@ -8,6 +8,7 @@ use App\Models\Teacher;
 use App\Http\Requests\StoreExamRequest;
 use App\Http\Requests\UpdateExamRequest;
 use App\Http\Resources\ExamResource;
+use Illuminate\Support\Facades\DB;
 
 class ExamController extends Controller
 {
@@ -20,6 +21,40 @@ class ExamController extends Controller
     public function __construct()
     {
         //$this->middleware('auth:api');
+    }
+
+    public function assignProfModulesRandomly()
+    {
+        // Récupère tous les groupes d'examens avec le même module, date, créneau et professeur
+        $groupedExams = Exam::select('module', 'date', 'creneau_horaire', 'prof_mod')
+            ->groupBy('module', 'date', 'creneau_horaire', 'prof_mod')
+            ->get();
+
+        foreach ($groupedExams as $group) {
+            // Trouver tous les examens correspondant à ce groupe
+            $exams = Exam::where('module', $group->module)
+                ->where('date', $group->date)
+                ->where('creneau_horaire', $group->creneau_horaire)
+                ->where('prof_mod', $group->prof_mod)
+                ->get();
+
+            if ($exams->isEmpty()) {
+                continue;
+            }
+
+            // Choisir un examen aléatoire dans le groupe
+            $randomExam = $exams->random();
+
+            // Trouver le professeur (à adapter selon la structure de tes données)
+            $teacher = Teacher::where(DB::raw("CONCAT(name, ' ', first_name)"), $group->prof_mod)->first();
+
+            // Si le professeur est trouvé et pas encore lié à cet examen
+            if ($teacher && !$randomExam->teachers()->where('teacher_id', $teacher->id)->exists()) {
+                $randomExam->teachers()->attach($teacher->id);
+            }
+        }
+
+        return response()->json(['message' => 'Professeurs affectés avec succès à un seul examen aléatoire par groupe.']);
     }
 
     public function all()
@@ -69,7 +104,7 @@ class ExamController extends Controller
         if ($groupe) {
             $query->where('groupe', 'like', '%' . $groupe . '%');
         }
-        $exams = $query->paginate(10);
+        $exams = $query->paginate(25);
         return ExamResource::collection($exams);
     }
 

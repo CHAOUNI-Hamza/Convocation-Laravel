@@ -27,6 +27,7 @@ class TeacherResource extends JsonResource
             'city' => $this->city,
             'status' => $this->status,
             'limit' => $this->limit,
+            'grad' => $this->grad,
             'total_exams' => $this->exams->count(), // Nombre total d'examens
             'exams' => ExamResource::collection($this->exams) // Optionnel : afficher les examens
         ];

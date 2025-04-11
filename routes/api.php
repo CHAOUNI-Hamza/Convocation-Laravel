@@ -42,6 +42,7 @@ Route::put('users/{user}/password', [UserController::class, 'updatePassword']);
 Route::get('/professeurs/{id}/exams', [TeacherController::class, 'getExamDunProf']);
 Route::get('/professeurs-disponibles', [TeacherController::class, 'getTeachersDisponibles']);
 
+Route::get('/assign-prof-module', [ExamController::class, 'assignProfModulesRandomly']);
 
 Route::get('exams/all', [ExamController::class, 'all']);
 Route::apiResource('exams', ExamController::class);

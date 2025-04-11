@@ -29,6 +29,7 @@ class TeacherFactory extends Factory
             'city' => $this->faker->city, // Ajout de la ville
             'status' => $this->faker->randomElement(['active', 'non']), // Ajout du statut (0 ou 1)
             'limit' => $this->faker->numberBetween(1, 100), // Ajout de la limite (nombre aléatoire)
+            'grad' => $this->faker->randomElement(['Professeur', 'Maître de conférences', 'Assistant', 'Docteur']), // Ajout du grade
         ];
     }
 }
