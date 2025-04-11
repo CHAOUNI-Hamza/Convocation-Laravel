@@ -25,13 +25,16 @@ class ExamController extends Controller
 
     public function assignProfModulesRandomly()
     {
-        // Récupère tous les groupes d'examens avec le même module, date, créneau et professeur
+        // Ne pas refaire si déjà affecté
+        if (Exam::where('assigned', true)->exists()) {
+            return response()->json(['message' => 'Les professeurs ont déjà été affectés.'], 403);
+        }
+
         $groupedExams = Exam::select('module', 'date', 'creneau_horaire', 'prof_mod')
             ->groupBy('module', 'date', 'creneau_horaire', 'prof_mod')
             ->get();
 
         foreach ($groupedExams as $group) {
-            // Trouver tous les examens correspondant à ce groupe
             $exams = Exam::where('module', $group->module)
                 ->where('date', $group->date)
                 ->where('creneau_horaire', $group->creneau_horaire)
@@ -42,20 +45,33 @@ class ExamController extends Controller
                 continue;
             }
 
-            // Choisir un examen aléatoire dans le groupe
             $randomExam = $exams->random();
-
-            // Trouver le professeur (à adapter selon la structure de tes données)
             $teacher = Teacher::where(DB::raw("CONCAT(name, ' ', first_name)"), $group->prof_mod)->first();
 
-            // Si le professeur est trouvé et pas encore lié à cet examen
             if ($teacher && !$randomExam->teachers()->where('teacher_id', $teacher->id)->exists()) {
                 $randomExam->teachers()->attach($teacher->id);
+                $randomExam->assigned = true;
+                $randomExam->save();
             }
         }
 
-        return response()->json(['message' => 'Professeurs affectés avec succès à un seul examen aléatoire par groupe.']);
+        return response()->json(['message' => 'Professeurs affectés avec succès.']);
     }
+
+
+    public function removeProfAssignments()
+    {
+        $exams = Exam::where('assigned', true)->get();
+
+        foreach ($exams as $exam) {
+            $exam->teachers()->detach(); // Détache tous les professeurs liés
+            $exam->assigned = false;
+            $exam->save();
+        }
+
+        return response()->json(['message' => 'Affectations supprimées avec succès.']);
+    }
+
 
     public function all()
     {

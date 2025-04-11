@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('groupe');
             $table->string('lib_mod');
             $table->string('prof_mod');
+            $table->boolean('assigned')->default(false);
             $table->timestamps();
         });
     }

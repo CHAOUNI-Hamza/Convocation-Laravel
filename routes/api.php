@@ -43,6 +43,8 @@ Route::get('/professeurs/{id}/exams', [TeacherController::class, 'getExamDunProf
 Route::get('/professeurs-disponibles', [TeacherController::class, 'getTeachersDisponibles']);
 
 Route::get('/assign-prof-module', [ExamController::class, 'assignProfModulesRandomly']);
+Route::get('/remove-prof-assignments', [ExamController::class, 'removeProfAssignments']);
+
 
 Route::get('exams/all', [ExamController::class, 'all']);
 Route::apiResource('exams', ExamController::class);
