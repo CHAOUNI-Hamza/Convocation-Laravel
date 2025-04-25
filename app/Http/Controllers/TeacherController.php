@@ -151,6 +151,10 @@ class TeacherController extends Controller
         $teacher->status = $request->input('status');
         $teacher->limit = $request->input('limit');
         $teacher->grad = $request->input('grad');
+        $teacher->cycle = $request->input('cycle');
+        $teacher->num_student = $request->input('num_student');
+        $teacher->year = $request->input('year');
+        $teacher->levels = $request->input('levels');
 
         $teacher->save();
         return new TeacherResource($teacher);
@@ -186,6 +190,10 @@ class TeacherController extends Controller
         $teacher->status = $request->input('status');
         $teacher->limit = $request->input('limit');
         $teacher->grad = $request->input('grad');
+        $teacher->cycle = $request->input('cycle');
+        $teacher->num_student = $request->input('num_student');
+        $teacher->year = $request->input('year');
+        $teacher->levels = $request->input('levels');
 
         $teacher->save();
         return new TeacherResource($teacher);

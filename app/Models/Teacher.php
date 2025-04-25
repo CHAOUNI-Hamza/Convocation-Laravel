@@ -10,7 +10,23 @@ class Teacher extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'first_name', 'name_ar', 'first_name_ar', 'sum_number', 'email', 'city', 'status', 'limit', 'grad'];
+    protected $fillable = [
+        'name',
+        'first_name',
+        'name_ar',
+        'first_name_ar',
+        'sum_number',
+        'email',
+        'city',
+        'status',
+        'limit',
+        'grad',
+        'cycle',
+        'num_student',
+        'year',
+        'levels'
+    ];
+    
 
     public function exams()
     {

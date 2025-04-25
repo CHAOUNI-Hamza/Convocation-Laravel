@@ -30,6 +30,10 @@ class TeacherFactory extends Factory
             'status' => $this->faker->randomElement(['active', 'non']), // Ajout du statut (0 ou 1)
             'limit' => $this->faker->numberBetween(1, 100), // Ajout de la limite (nombre aléatoire)
             'grad' => $this->faker->randomElement(['Professeur', 'Maître de conférences', 'Assistant', 'Docteur']), // Ajout du grade
+            'cycle' => $this->faker->lastName,
+            'levels' => $this->faker->randomElement(['Licence', 'Master', 'Doctorat']),
+            'num_student' => $this->faker->numberBetween(5, 100),
+            'year' => $this->faker->randomElement(['2020/2021', '2021/2022', '2022/2023', '2023/2024']),
         ];
     }
 }

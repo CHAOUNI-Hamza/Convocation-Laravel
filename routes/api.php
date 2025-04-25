@@ -6,6 +6,9 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\TimeslotController;
+use App\Http\Controllers\StudentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +38,11 @@ Route::group([
     Route::post('me', [AuthController::class, 'me']);
 
 });
+
+
+Route::get('/students/{apogee}', [StudentController::class, 'getByApogee']);
+Route::get('/timeslots', [TimeslotController::class, 'index']);
+Route::post('/reservations', [ReservationController::class, 'store']);
 
 Route::apiResource('users', UserController::class);
 Route::put('users/{user}/password', [UserController::class, 'updatePassword']);
