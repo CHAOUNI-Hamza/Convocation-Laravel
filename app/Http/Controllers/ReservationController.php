@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Reservation;
+use App\Models\Student;
 use App\Http\Requests\StoreReservationRequest;
 use App\Http\Requests\UpdateReservationRequest;
 
@@ -36,23 +38,37 @@ class ReservationController extends Controller
      */
     public function store(Request $request)
     {
+        if (is_string($request->timeslots)) {
+            $request->merge([
+                'timeslots' => json_decode($request->timeslots, true),
+            ]);
+        }
+
         $request->validate([
             'apogee' => 'required|exists:students,apogee',
             'timeslots' => 'required|array',
             'timeslots.*' => 'exists:timeslots,id',
         ]);
-    
+
         $student = Student::where('apogee', $request->apogee)->first();
-    
+
+        // Vérifier si l'étudiant a déjà une réservation
+        $hasReservation = Reservation::where('student_id', $student->id)->exists();
+
+        if ($hasReservation) {
+            return response()->json(['message' => "لقد قام الطالب بالفعل بإجراء حجز"], 400);
+        }
+
         foreach ($request->timeslots as $timeslot_id) {
             Reservation::create([
                 'student_id' => $student->id,
                 'timeslot_id' => $timeslot_id,
             ]);
         }
-    
-        return response()->json(['message' => 'Reservation saved successfully']);
+
+        return response()->json(['message' => 'تم تسجيل الحجز بنجاح']);
     }
+
 
     /**
      * Display the specified resource.
