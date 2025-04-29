@@ -10,6 +10,25 @@ use App\Http\Requests\UpdateReservationRequest;
 
 class ReservationController extends Controller
 {
+    public function getReservationsByApogee($apogee)
+    {
+        $student = Student::where('apogee', $apogee)->first();
+
+        if (!$student) {
+            return response()->json(['message' => 'Étudiant non trouvé'], 404);
+        }
+
+        $reservations = Reservation::with('timeslot')
+            ->where('student_id', $student->id)
+            ->get();
+
+        return response()->json([
+            'studentres' => $student,
+            'reservations' => $reservations
+        ]);
+    }
+
+
     /**
      * Display a listing of the resource.
      *

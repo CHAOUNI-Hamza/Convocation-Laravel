@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('apogee')->unique();
             $table->string('cne');
             $table->string('first_name');
+            $table->string('last_name');
             $table->string('last_name_ar');
             $table->string('first_name_ar');
             $table->string('cnie');

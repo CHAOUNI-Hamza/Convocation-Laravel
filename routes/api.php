@@ -43,6 +43,8 @@ Route::group([
 Route::get('/students/{apogee}', [StudentController::class, 'getByApogee']);
 Route::get('/timeslots', [TimeslotController::class, 'index']);
 Route::post('/reservations', [ReservationController::class, 'store']);
+Route::get('/reservations/{apogee}', [ReservationController::class, 'getReservationsByApogee']);
+
 
 Route::apiResource('users', UserController::class);
 Route::put('users/{user}/password', [UserController::class, 'updatePassword']);
