@@ -23,6 +23,17 @@ class TeacherController extends Controller
         //$this->middleware('auth:api');
     }
 
+    public function getBySom($som)
+    {
+        $prof = Teacher::where('sum_number', $som)->first();
+
+        if (!$prof) {
+            return response()->json(['message' => 'prof not found'], 404);
+        }
+
+        return response()->json($prof);
+    }
+
     // Récupérer tous les examens d’un professeur spécifique
     public function getExamDunProf($id) {
         $teacher = Teacher::with(['exams' => function($query) {
@@ -41,7 +52,25 @@ class TeacherController extends Controller
             'exams' => $teacher->exams
         ]);
     }
-    
+    public function getExamDunProfParSumNumber($sum_number)
+    {
+        $teacher = Teacher::with(['exams' => function($query) {
+                $query->orderBy('date');  // Trie par date
+            }])
+            ->select('id', 'name', 'first_name')
+            ->where('sum_number', $sum_number)
+            ->first();
+
+        if (!$teacher) {
+            return response()->json(['message' => 'Professeur non trouvé'], 404);
+        }
+
+        return response()->json([
+            'name' => $teacher->name,
+            'first_name' => $teacher->first_name,
+            'exams' => $teacher->exams
+        ]);
+    }
     
 
     public function getTeachersDisponibles(Request $request)

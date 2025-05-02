@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Reservation;
 use App\Models\Student;
+use App\Models\Teacher;
 use App\Http\Requests\StoreReservationRequest;
 use App\Http\Requests\UpdateReservationRequest;
+use App\Http\Resources\ReservationResource;
 
 class ReservationController extends Controller
 {
@@ -36,7 +38,8 @@ class ReservationController extends Controller
      */
     public function index()
     {
-        //
+        $reservations = Reservation::with(['student', 'timeslot'])->get();
+        return ReservationResource::collection($reservations);
     }
 
     /**

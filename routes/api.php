@@ -39,8 +39,11 @@ Route::group([
 
 });
 
-
+Route::apiResource('students/crud', StudentController::class);
 Route::get('/students/{apogee}', [StudentController::class, 'getByApogee']);
+
+Route::get('/profs/{som}', [TeacherController::class, 'getBySom']);
+
 Route::get('/timeslots', [TimeslotController::class, 'index']);
 Route::post('/reservations', [ReservationController::class, 'store']);
 Route::get('/reservations/{apogee}', [ReservationController::class, 'getReservationsByApogee']);
@@ -52,9 +55,12 @@ Route::put('users/{user}/password', [UserController::class, 'updatePassword']);
 Route::get('/professeurs/{id}/exams', [TeacherController::class, 'getExamDunProf']);
 Route::get('/professeurs-disponibles', [TeacherController::class, 'getTeachersDisponibles']);
 
+Route::get('/professeurs/som/{sum_number}/exams', [TeacherController::class, 'getExamDunProfParSumNumber']);
+
 Route::get('/assign-prof-module', [ExamController::class, 'assignProfModulesRandomly']);
 Route::get('/remove-prof-assignments', [ExamController::class, 'removeProfAssignments']);
 
+Route::get('/remove-prof-assignments', [ExamController::class, 'getSessionExam']);
 
 Route::get('exams/all', [ExamController::class, 'all']);
 Route::apiResource('exams', ExamController::class);
@@ -64,3 +70,5 @@ Route::apiResource('exams', ExamController::class);
 Route::get('teachers/all', [TeacherController::class, 'all']);
 
 Route::apiResource('teachers', TeacherController::class);
+
+Route::apiResource('reservation', ReservationController::class);

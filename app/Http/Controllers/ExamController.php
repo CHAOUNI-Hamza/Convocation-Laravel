@@ -83,6 +83,22 @@ class ExamController extends Controller
         return ExamResource::collection($exams);
     }
 
+    public function getSessionExam()
+    {
+        $exam = Exam::with('teachers')
+            ->where('salle', 'session')
+            ->orderBy('date', 'asc')
+            ->orderBy('creneau_horaire', 'asc')
+            ->first(); // récupère le premier exam seulement
+
+        if (!$exam) {
+            return response()->json(['message' => 'Aucun examen trouvé.'], 404);
+        }
+
+        return new ExamResource($exam);
+    }
+
+
 
     /**
      * Display a listing of the resource.
