@@ -15,7 +15,9 @@ class TimeslotController extends Controller
      */
     public function index()
     {
-        return Timeslot::all();
+        return Timeslot::orderBy('date')
+                   ->orderBy('time_range')
+                   ->get();
     }
 
     /**

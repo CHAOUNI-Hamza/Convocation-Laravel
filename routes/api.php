@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\TimeslotController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\CycleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,11 +60,14 @@ Route::get('/professeurs/som/{sum_number}/exams', [TeacherController::class, 'ge
 
 Route::get('/assign-prof-module', [ExamController::class, 'assignProfModulesRandomly']);
 Route::get('/remove-prof-assignments', [ExamController::class, 'removeProfAssignments']);
+Route::get('/exam-teacher/details', [ExamController::class, 'getExamTeachersDetails']);
 
-Route::get('/remove-prof-assignments', [ExamController::class, 'getSessionExam']);
 
 Route::get('exams/all', [ExamController::class, 'all']);
 Route::apiResource('exams', ExamController::class);
+
+Route::get('/cycle', [CycleController::class, 'index']);
+Route::put('/cycle', [CycleController::class, 'update']);
 
 
 

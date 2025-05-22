@@ -37,7 +37,7 @@ class TeacherController extends Controller
     // Récupérer tous les examens d’un professeur spécifique
     public function getExamDunProf($id) {
         $teacher = Teacher::with(['exams' => function($query) {
-            $query->orderBy('date');  // Trie par date
+            $query->orderBy('date')->orderBy('creneau_horaire');  // Trie par date
         }])
         ->select('id', 'name', 'first_name')
         ->find($id);
@@ -52,6 +52,7 @@ class TeacherController extends Controller
             'exams' => $teacher->exams
         ]);
     }
+
     public function getExamDunProfParSumNumber($sum_number)
     {
         $teacher = Teacher::with(['exams' => function($query) {
@@ -78,29 +79,29 @@ class TeacherController extends Controller
         $date = $request->input('date');  // Format : 'Y-m-d'
         $creneauHoraire = $request->input('creneau_horaire');  // Format : 'H:i'
 
-        if ($creneauHoraire == '09:00:00') {
+        if ($creneauHoraire == '09:00') {
             $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->where('creneau_horaire', '09:00:00');
+                    ->where('creneau_horaire', '09:00');
             })->get();
 
             $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->whereIn('creneau_horaire', ['11:30:00', '14:00:00', '14:30:00', '16:30:00', '17:00:00']);
+                    ->whereIn('creneau_horaire', ['11:30', '14:00', '14:30', '16:30', '17:00']);
             })->get();
         } 
-        elseif ($creneauHoraire == '11:30:00') {
+        elseif ($creneauHoraire == '11:30') {
             $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->where('creneau_horaire', '11:30:00');
+                    ->where('creneau_horaire', '11:30');
             })->get();
 
             $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->whereIn('creneau_horaire', ['09:00:00', '14:00:00', '14:30:00', '16:30:00', '17:00:00']);
+                    ->whereIn('creneau_horaire', ['09:00', '14:00', '14:30', '16:30', '17:00']);
             })->get();
         } 
-        elseif ($creneauHoraire == '14:00:00' || $creneauHoraire == '14:30:00') {
+        elseif ($creneauHoraire == '14:00' || $creneauHoraire == '14:30') {
             $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
                 $query->where('date', $date)
                     ->where('creneau_horaire', $creneauHoraire);
@@ -108,10 +109,10 @@ class TeacherController extends Controller
 
             $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->whereIn('creneau_horaire', ['09:00:00', '11:30:00', '16:30:00', '17:00:00']);
+                    ->whereIn('creneau_horaire', ['09:00', '11:30', '16:30', '17:00']);
             })->get();
         } 
-        elseif ($creneauHoraire == '16:30:00' || $creneauHoraire == '17:00:00') {
+        elseif ($creneauHoraire == '16:30' || $creneauHoraire == '17:00') {
             $teachersWithoutCreneau = Teacher::whereDoesntHave('exams', function ($query) use ($date, $creneauHoraire) {
                 $query->where('date', $date)
                     ->where('creneau_horaire', $creneauHoraire);
@@ -119,7 +120,7 @@ class TeacherController extends Controller
 
             $teachersWithOtherCreneaux = Teacher::whereHas('exams', function ($query) use ($date) {
                 $query->where('date', $date)
-                    ->whereIn('creneau_horaire', ['09:00:00', '11:30:00', '14:00:00', '14:30:00']);
+                    ->whereIn('creneau_horaire', ['09:00', '11:30', '14:00', '14:30']);
             })->get();
         } 
         else {
@@ -144,10 +145,12 @@ class TeacherController extends Controller
 
     public function all()
     {
-        $teachers = Teacher::with('exams')->get(); 
+        $teachers = Teacher::with('exams')
+        ->orderBy('first_name', 'asc') // Tri alphabétique croissant
+        ->get();
+
         return TeacherResource::collection($teachers);
     }
-
 
     /**
      * Display a listing of the resource.
@@ -156,7 +159,7 @@ class TeacherController extends Controller
      */
     public function index()
     {
-        $teachers = Teacher::orderBy('created_at', 'desc')->paginate(15);
+        $teachers = Teacher::orderBy('created_at', 'desc')->get();
         return TeacherResource::collection($teachers);
     }
 

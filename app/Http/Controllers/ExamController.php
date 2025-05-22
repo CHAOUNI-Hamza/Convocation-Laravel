@@ -23,6 +23,26 @@ class ExamController extends Controller
         //$this->middleware('auth:api');
     }
 
+    public function getExamTeachersDetails()
+    {
+        $results = DB::table('exam_teacher')
+            ->join('exams', 'exam_teacher.exam_id', '=', 'exams.id')
+            ->join('teachers', 'exam_teacher.teacher_id', '=', 'teachers.id')
+            ->select(
+                'exams.filiere',
+                'exams.semestre',
+                'exams.date',
+                'exams.salle',
+                'exams.creneau_horaire',
+                'exams.prof_mod',
+                'teachers.name',
+                'teachers.first_name'
+            )
+            ->get();
+
+        return response()->json($results);
+    }
+
     public function assignProfModulesRandomly()
     {
         // Ne pas refaire si déjà affecté
@@ -83,23 +103,6 @@ class ExamController extends Controller
         return ExamResource::collection($exams);
     }
 
-    public function getSessionExam()
-    {
-        $exam = Exam::with('teachers')
-            ->where('salle', 'session')
-            ->orderBy('date', 'asc')
-            ->orderBy('creneau_horaire', 'asc')
-            ->first(); // récupère le premier exam seulement
-
-        if (!$exam) {
-            return response()->json(['message' => 'Aucun examen trouvé.'], 404);
-        }
-
-        return new ExamResource($exam);
-    }
-
-
-
     /**
      * Display a listing of the resource.
      *
@@ -113,8 +116,11 @@ class ExamController extends Controller
         $filiere = $request->input('filiere');
         $semestre = $request->input('semestre');
         $groupe = $request->input('groupe');
+        $profMod = $request->input('prof_mod');
+        $libMod = $request->input('lib_mod');
 
         $query = Exam::with('teachers')
+        ->orderBy('module', 'asc')
         ->orderBy('date', 'asc')  // Trier par date en premier
         ->orderBy('creneau_horaire', 'asc'); // Trier par créneau horaire ensuite
         
@@ -136,7 +142,13 @@ class ExamController extends Controller
         if ($groupe) {
             $query->where('groupe', 'like', '%' . $groupe . '%');
         }
-        $exams = $query->paginate(25);
+        if ($profMod) {
+            $query->where('prof_mod', 'like', '%' . $profMod . '%');
+        }
+        if ($libMod) {
+            $query->where('lib_mod', 'like', '%' . $libMod . '%');
+        }
+        $exams = $query->paginate(600);
         return ExamResource::collection($exams);
     }
 
@@ -195,6 +207,7 @@ class ExamController extends Controller
      */
     public function update(UpdateExamRequest $request, Exam $exam)
     {
+        //return $request;
         $exam->update([
             'date' => \Carbon\Carbon::parse($request->date)->format('Y-m-d'),
             'creneau_horaire' => \Carbon\Carbon::parse($request->creneau_horaire)->format('H:i'),
