@@ -23,6 +23,7 @@ class ReservationResource extends JsonResource
             'lab'       => $this->student->lab,
             'cnie'      => $this->student->cnie,
             'date'      => $this->timeslot->date,
+            'email'      => $this->timeslot->email,
             'time_range'=> $this->timeslot->time_range,
         ];
     }

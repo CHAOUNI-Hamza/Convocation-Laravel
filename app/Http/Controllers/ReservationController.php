@@ -42,6 +42,54 @@ class ReservationController extends Controller
         return ReservationResource::collection($reservations);
     }
 
+    public function indexRes(Request $request)
+    {
+        $apogee = $request->input('apogee');
+        $cne = $request->input('cne');
+        $last_name = $request->input('last_name');
+        $date = $request->input('date');
+        $time_range = $request->input('time_range');
+
+        $query = Reservation::with(['student', 'timeslot']);
+
+        // Filtres sur les champs de la relation student
+        if ($apogee) {
+            $query->whereHas('student', function ($q) use ($apogee) {
+                $q->where('apogee', 'like', '%' . $apogee . '%');
+            });
+        }
+
+        if ($cne) {
+            $query->whereHas('student', function ($q) use ($cne) {
+                $q->where('cne', 'like', '%' . $cne . '%');
+            });
+        }
+
+        if ($last_name) {
+            $query->whereHas('student', function ($q) use ($last_name) {
+                $q->where('last_name', 'like', '%' . $last_name . '%');
+            });
+        }
+
+        // Filtres sur les champs de la relation timeslot
+        if ($date) {
+            $query->whereHas('timeslot', function ($q) use ($date) {
+                $q->whereDate('date', $date);
+            });
+        }
+
+        if ($time_range) {
+            $query->whereHas('timeslot', function ($q) use ($time_range) {
+                $q->where('time_range', 'like', $time_range . '%');
+            });
+        }    
+
+        $reservations = $query->orderBy('id', 'desc')->get();
+
+        return ReservationResource::collection($reservations);
+    }
+
+
     /**
      * Show the form for creating a new resource.
      *

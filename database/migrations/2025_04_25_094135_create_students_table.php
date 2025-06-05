@@ -19,11 +19,13 @@ return new class extends Migration
             $table->string('cne');
             $table->string('first_name');
             $table->string('last_name');
+            $table->string('email')->unique();
             $table->string('last_name_ar');
             $table->string('first_name_ar');
             $table->string('cnie');
             $table->date('birth_date');
             $table->string('lab');
+            $table->string('tel');
             $table->timestamps();
         });
     }

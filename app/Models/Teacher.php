@@ -21,10 +21,7 @@ class Teacher extends Model
         'status',
         'limit',
         'grad',
-        'cycle',
-        'num_student',
-        'year',
-        'levels'
+        'day_time'
     ];
     
 

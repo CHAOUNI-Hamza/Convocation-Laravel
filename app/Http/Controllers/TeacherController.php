@@ -157,9 +157,14 @@ class TeacherController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $teachers = Teacher::orderBy('created_at', 'desc')->get();
+        $name = $request->input('name');
+
+        $teachers = Teacher::when($name, function ($query, $name) {
+            return $query->where('name', 'like', '%' . $name . '%');
+        })->orderBy('created_at', 'desc')->get();
+
         return TeacherResource::collection($teachers);
     }
 
@@ -183,10 +188,7 @@ class TeacherController extends Controller
         $teacher->status = $request->input('status');
         $teacher->limit = $request->input('limit');
         $teacher->grad = $request->input('grad');
-        $teacher->cycle = $request->input('cycle');
-        $teacher->num_student = $request->input('num_student');
-        $teacher->year = $request->input('year');
-        $teacher->levels = $request->input('levels');
+        $teacher->day_time = $request->input('day_time');
 
         $teacher->save();
         return new TeacherResource($teacher);
@@ -222,10 +224,7 @@ class TeacherController extends Controller
         $teacher->status = $request->input('status');
         $teacher->limit = $request->input('limit');
         $teacher->grad = $request->input('grad');
-        $teacher->cycle = $request->input('cycle');
-        $teacher->num_student = $request->input('num_student');
-        $teacher->year = $request->input('year');
-        $teacher->levels = $request->input('levels');
+        $teacher->day_time = $request->input('day_time');
 
         $teacher->save();
         return new TeacherResource($teacher);

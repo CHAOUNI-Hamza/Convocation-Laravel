@@ -40,8 +40,8 @@ Route::group([
 
 });
 
-Route::apiResource('students/crud', StudentController::class);
-Route::get('/students/{apogee}', [StudentController::class, 'getByApogee']);
+Route::apiResource('students', StudentController::class);
+Route::get('/students/{apogee}/apogee', [StudentController::class, 'getByApogee']);
 
 Route::get('/profs/{som}', [TeacherController::class, 'getBySom']);
 
@@ -76,3 +76,4 @@ Route::get('teachers/all', [TeacherController::class, 'all']);
 Route::apiResource('teachers', TeacherController::class);
 
 Route::apiResource('reservation', ReservationController::class);
+Route::get('res/reservation', [ReservationController::class, 'indexRes']);

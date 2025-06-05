@@ -25,10 +25,7 @@ return new class extends Migration
             $table->boolean('status')->default(1);
             $table->integer('limit')->nullable();
             $table->string('grad')->nullable();
-            $table->string('cycle')->nullable();
-            $table->integer('num_student')->nullable();
-            $table->string('year')->nullable();
-            $table->string('levels')->nullable();
+            $table->string('day_time')->nullable();
             $table->timestamps();
         });
     }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
+use App\Http\Resources\StudentResource;
 
 class StudentController extends Controller
 {
@@ -24,11 +26,22 @@ class StudentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    /*public function index()
     {
-        $students = Student::orderBy('created_at', 'desc')->paginate(15);
+        $students = Student::orderBy('created_at', 'desc')->get();
+        return StudentResource::collection($students);
+    }*/
+    public function index(Request $request)
+    {
+        $lastName = $request->input('last_name');
+
+        $students = Student::when($lastName, function ($query, $lastName) {
+            return $query->where('last_name', 'like', '%' . $lastName . '%');
+        })->orderBy('created_at', 'desc')->get();
+
         return StudentResource::collection($students);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -58,6 +71,8 @@ class StudentController extends Controller
         $student->cnie = $request->input('cnie');
         $student->birth_date = $request->input('birth_date');
         $student->lab = $request->input('lab');
+        $student->email = $request->input('email');
+        $student->tel = $request->input('tel');
         $student->save();
 
         return new StudentResource($student);
@@ -103,6 +118,8 @@ class StudentController extends Controller
         $student->cnie = $request->input('cnie');
         $student->birth_date = $request->input('birth_date');
         $student->lab = $request->input('lab');
+        $student->email = $request->input('email');
+        $student->tel = $request->input('tel');
         $student->save();
 
         return new StudentResource($student);
